@@ -16,7 +16,7 @@ const Camera = () => {
 
   // Detect if the device is mobile
   useLayoutEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const userAgent = navigator.userAgent || navigator.vendor;
     if (/android/i.test(userAgent) || /iPhone|iPad|iPod/i.test(userAgent)) {
       setIsMobile(true);
     }
