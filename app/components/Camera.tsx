@@ -2,6 +2,10 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 
+import io from 'socket.io-client';
+
+const socket = io();
+
 const Camera = () => {
   const videoRef = useRef<any>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
