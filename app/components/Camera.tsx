@@ -1,52 +1,49 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
-const Camera: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasCamera, setHasCamera] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
+const Camera = () => {
+  const videoRef = useRef<any>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+
+  const sendVideoData = (data: string) => {
+    socket.emit("videoData", data);
+  };
 
   useEffect(() => {
-    const getCamera = async () => {
+    const enableVideoStream = async () => {
       try {
-        // Request access to the camera
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        
-        // If the video element exists, set the camera stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-        }
-
-        setHasCamera(true);
-        setCameraError(null); // Clear error on success
+        console.log('Media Stream:', stream);  // Log the media stream for debugging
+        setMediaStream(stream);
       } catch (error) {
-        console.error('Error accessing camera: ', error);
-        setCameraError('Unable to access the camera. Please check your permissions or try again.');
-        setHasCamera(false);
+        console.error('Error accessing webcam', error);
       }
     };
 
-    getCamera();
-
-    // Clean up the media stream when the component is unmounted
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
+    enableVideoStream();
   }, []);
 
+  useEffect(() => {
+    if (videoRef.current && mediaStream) {
+      console.log('Setting video stream...');  // Debug log to check if stream is being assigned
+      videoRef.current.srcObject = mediaStream;
+    }
+  }, [videoRef, mediaStream]);
+
+  useEffect(() => {
+    return () => {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
+    };
+  }, [mediaStream]);
+
   return (
-    <div className="camera">
-      {cameraError && <p>{cameraError}</p>}
-      {hasCamera ? (
-        <video ref={videoRef} autoPlay playsInline width="100%" height="auto" />
-      ) : (
-        <p>Waiting for camera feed...</p>
-      )}
+    <div>
+      <video ref={videoRef} autoPlay playsInline width="100%" height="auto" />
     </div>
   );
 };

@@ -159,7 +159,7 @@ button:hover {
 /* Camera component */
 .camera {
   width: 100%;
-  max-width: 480px;
+  max-width: 100%;
   margin: 20px auto;
   background-color: black;
   border-radius: 8px;
@@ -167,5 +167,7 @@ button:hover {
 
 video {
   width: 100%;
-  border-radius: 8px;
+  max-width: 480px;
+  margin: 0 auto;
+  display: block;
 }
