@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import io from 'socket.io-client';
 
 const socket = io();
@@ -9,10 +8,19 @@ const socket = io();
 const Camera = () => {
   const videoRef = useRef<any>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const sendVideoData = (data: string) => {
     socket.emit("videoData", data);
   };
+
+  // Detect if the device is mobile
+  useLayoutEffect(() => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/android/i.test(userAgent) || /iPhone|iPad|iPod/i.test(userAgent)) {
+      setIsMobile(true);
+    }
+  }, []);
 
   useEffect(() => {
     const enableVideoStream = async () => {
@@ -47,7 +55,16 @@ const Camera = () => {
 
   return (
     <div>
-      <video ref={videoRef} autoPlay playsInline width="100%" height="auto" />
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        width="100%"
+        height="auto"
+        style={{
+          transform: isMobile ? 'scaleX(-1)' : 'none', // Invert the video on mobile
+        }}
+      />
     </div>
   );
 };
