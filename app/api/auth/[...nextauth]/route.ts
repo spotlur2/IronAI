@@ -12,7 +12,7 @@ const handler = NextAuth({
     signIn: '/', // optional: redirect to the homepage after sign-in
   },
   // Ensure NEXTAUTH_URL is set for production deployment
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_URL,
   session: {
     strategy: 'jwt',
   },
