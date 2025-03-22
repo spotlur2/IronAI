@@ -11,6 +11,20 @@ const handler = NextAuth({
   pages: {
     signIn: '/', // optional: redirect to the homepage after sign-in
   },
+  // Ensure NEXTAUTH_URL is set for production deployment
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
