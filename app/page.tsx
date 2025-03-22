@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { db, doc, setDoc } from '../lib/firebase';
 import SignInButton from './components/SignInButton';
 import ChatBox from './components/ChatBox'; // Import the ChatBox component
+import Head from 'next/head'; // Import Head component to modify the browser tab title
 
 const HomePage: React.FC = () => {
   const { data: session, status } = useSession();
@@ -36,23 +37,33 @@ const HomePage: React.FC = () => {
 
   if (!session) {
     return (
-      <div>
-        <h1>Welcome to the Gym Assistant</h1>
-        <SignInButton />
-      </div>
+      <>
+        <Head>
+          <title>Iron AI</title> {/* Set the title for the page */}
+        </Head>
+        <div>
+          <h1>IronAI</h1>
+          <SignInButton />
+        </div>
+      </>
     );
   }
 
   return (
-    <div>
-      <h1>Welcome, {session.user?.name}</h1>
-      <p>Email: {session.user?.email}</p>
-      <img src={session.user?.image || '/default-avatar.png'} alt="User Avatar" />
-      <button onClick={() => signOut()}>Sign out</button>
+    <>
+      <Head>
+        <title>Iron AI</title> {/* Set the title for the page */}
+      </Head>
+      <div>
+        <h1>Welcome, {session.user?.name}</h1>
+        <p>Email: {session.user?.email}</p>
+        <img src={session.user?.image || '/default-avatar.png'} alt="User Avatar" />
+        <button onClick={() => signOut()}>Sign out</button>
 
-      {/* Add ChatBox component */}
-      <ChatBox />
-    </div>
+        {/* Add ChatBox component */}
+        <ChatBox />
+      </div>
+    </>
   );
 };
 
