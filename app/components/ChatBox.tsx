@@ -1,7 +1,9 @@
 // app/components/ChatBox.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { db, doc, setDoc, getDoc } from '../../lib/firebase';
 
 interface ChatMessage {
   sender: 'user' | 'ai';
@@ -9,21 +11,57 @@ interface ChatMessage {
 }
 
 const ChatBox: React.FC = () => {
+  const { data: session } = useSession();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState<string>('');
 
-  // Function to send a new message
+  useEffect(() => {
+    if (session?.user?.email) {
+      // Fetch chat history from Firestore when the user logs in
+      const chatRef = doc(db, 'chats', session.user.email);
+      getDoc(chatRef).then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setMessages(docSnapshot.data()?.messages || []);
+        }
+      });
+    }
+  }, [session]);
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Add user message to the chat
-    const newMessages: ChatMessage[] = [...messages, { sender: 'user', message: input }];
-    setMessages(newMessages);
-    setInput('');
+    if (session?.user?.email) {
+      // Add user message to chat history
+      const newMessages: ChatMessage[] = [
+        ...messages,
+        { sender: 'user', message: input },
+      ];
+      setMessages(newMessages);
+      setInput('');
 
-    // Simulate AI response (you'll integrate OpenAI API later)
-    const aiResponse = 'This is an AI response based on your input!';
-    setMessages([...newMessages, { sender: 'ai', message: aiResponse } as ChatMessage]);
+      try {
+        // Send message to Gemini API via Next.js route
+        const response = await fetch('/api/gemini', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: input }),
+        });
+
+        const data = await response.json();
+        const aiResponse = data.message || 'Sorry, I could not generate a response.';
+
+        // Add AI response to chat history
+        setMessages([...newMessages, { sender: 'ai', message: aiResponse }]);
+
+        // Save chat history to Firestore
+        const chatRef = doc(db, 'chats', session.user.email);
+        await setDoc(chatRef, { messages: [...newMessages, { sender: 'ai', message: aiResponse }] });
+      } catch (error) {
+        console.error('Error fetching AI response:', error);
+      }
+    }
   };
 
   return (

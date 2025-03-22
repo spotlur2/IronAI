@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io();
+const socket = io('http://localhost:3000');
 
 const Camera = () => {
   const videoRef = useRef<any>(null);

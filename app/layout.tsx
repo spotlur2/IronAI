@@ -1,21 +1,23 @@
 // app/layout.tsx
+'use client';
 
+import { SessionProvider } from 'next-auth/react';
 import React from 'react';
 import './styles/globals.css';
 
-const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <html lang="en">
-      <head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>AI Gym Assistant</title>
-      </head>
+      <head />
       <body>
-        <header>
-          <h1>IronAI</h1>
-        </header>
-        <main>{children}</main>
+        {/* Wrap children with SessionProvider to handle authentication */}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
